@@ -184,6 +184,11 @@ etag@~1.8.1:
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
 
+express-mongo-sanitize@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/express-mongo-sanitize/-/express-mongo-sanitize-2.0.2.tgz#72560ce453a2738d5c8301f48c4dd0965f76d6ab"
+  integrity sha512-JKdeb6EBW++5Uo4F5Ed66p3FSjqNfqc65WrO2H6iWJjyI+IYb4pWq6HjFho/8p95t7ccjr9aBz8QQszeLM/bcQ==
+
 express-rate-limit@^5.2.6:
   version "5.2.6"
   resolved "https://registry.yarnpkg.com/express-rate-limit/-/express-rate-limit-5.2.6.tgz#b454e1be8a252081bda58460e0a25bf43ee0f7b0"
@@ -723,3 +728,15 @@ vary@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
+
+xss-clean@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/xss-clean/-/xss-clean-0.1.1.tgz#d3ba684d85ccd52054963d01ad6ab36d662db1a5"
+  integrity sha1-07poTYXM1SBUlj0BrWqzbWYtsaU=
+  dependencies:
+    xss-filters "1.2.6"
+
+xss-filters@1.2.6:
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/xss-filters/-/xss-filters-1.2.6.tgz#68b39089cb1dff8b9dbc889484839b2f507f5c55"
+  integrity sha1-aLOQicsd/4udvIiUhIObL1B/XFU=
