@@ -10,6 +10,7 @@ const hpp = require('hpp');
 //custom modules
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./controllers/errorController');
 //1) GLOBAL MIDDLEWARE START
@@ -57,6 +58,7 @@ app.use((req, res, next) => {
 //ROUTES
 app.use('/api/v1/tours', tourRouter); //middleware
 app.use('/api/v1/users', userRouter); //middleware
+app.use('/api/v1/reviews', reviewRouter); //middleware
 app.all('*', (req, res, next) => {
   // res.status(404).json({
   //   status: 'failed',
