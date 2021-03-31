@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
@@ -13,7 +14,14 @@ const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./controllers/errorController');
+
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
 //1) GLOBAL MIDDLEWARE START
+
+//Serving static files
+// app.use(express.static(`${__dirname}/public`));
+app.use(express.static(path.join(__dirname, 'public')));
 //set security HTTP Header
 app.use(helmet());
 
@@ -44,8 +52,6 @@ app.use(
     whitelist: ['duration', 'ratingsAverage', 'ratingsQuantity', 'duration', 'difficulty', 'price'],
   })
 );
-//Serving static files
-app.use(express.static(`${__dirname}/public`));
 
 //test middleware
 app.use((req, res, next) => {
