@@ -6,24 +6,36 @@
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
-    "debug": "ndb server.js"
+    "debug": "ndb server.js",
+    "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js  --out-file bundle.js",
+    "build:js": "parcel watch ./public/js/index.js --out-dir ./public/js  --out-file bundle.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-mongo-sanitize": "^2.0.2",
     "express-rate-limit": "^5.2.6",
     "helmet": "^4.4.1",
     "hpp": "^0.2.3",
+    "html-to-text": "^7.0.0",
     "jsonwebtoken": "^8.5.1",
+    "mapbox-gl": "^2.2.0",
     "mongoose": "^5.11.19",
     "morgan": "^1.10.0",
+    "multer": "^1.4.2",
     "nodemailer": "^6.5.0",
+    "parcel-bundler": "^1.12.5",
+    "pug": "^3.0.2",
+    "sharp": "^0.28.1",
     "slugify": "^1.4.7",
+    "stripe": "^8.142.0",
     "validator": "^13.5.2",
     "xss-clean": "^0.1.1"
   }

@@ -7,13 +7,16 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 //custom modules
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./controllers/errorController');
+const viewRouter = require('./routes/viewRoutes');
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
@@ -41,6 +44,8 @@ app.use('/api', limiter);
 
 //Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+// app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(cookieParser());
 
 //data sanitization from NOSQL injection
 app.use(mongoSanitize());
@@ -56,15 +61,23 @@ app.use(
 //test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
-  // console.log(req.headers);
+  // console.log(req.cookies);
+  next();
+});
+app.use((req, res, next) => {
+  res.set({
+    'Content-Security-Policy': `default-src 'self' http: https:;block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data: blob:;object-src 'none';script-src 'self' https://api.mapbox.com https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval';script-src-elem https: http: ;script-src-attr 'self' https://api.mapbox.com https://cdn.jsdelivr.net 'unsafe-inline';style-src 'self' https://api.mapbox.com https://fonts.googleapis.com 'unsafe-inline';worker-src 'self' blob:`,
+  });
   next();
 });
 // END OF MIDDLEWARE
 
 //ROUTES
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter); //middleware
 app.use('/api/v1/users', userRouter); //middleware
 app.use('/api/v1/reviews', reviewRouter); //middleware
+app.use('/api/v1/bookings', bookingRouter);
 app.all('*', (req, res, next) => {
   // res.status(404).json({
   //   status: 'failed',

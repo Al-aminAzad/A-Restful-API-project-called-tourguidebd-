@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const AppError = require('../utilities/appError');
 const User = require('../models/userModel');
 const catchAsync = require('../utilities/catchAsync');
-const sendEmail = require('../utilities/email');
+const Email = require('../utilities/email');
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 };
@@ -16,7 +16,7 @@ const createSendToken = (user, statusCode, res) => {
   };
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
   //this removes password output from client only
-  user.password=undefined;
+  user.password = undefined;
   res.cookie('jwt', token, cookieOptions);
   res.status(statusCode).json({
     status: 'success',
@@ -33,6 +33,10 @@ exports.signUp = catchAsync(async (req, res, next) => {
     passwordChangedAt: req.body.passwordChangedAt,
     role: req.body.role,
   });
+
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  console.log(url);
+  await new Email(newUser, url).sendWelcome();
 
   createSendToken(newUser, 201, res);
 });
@@ -52,30 +56,67 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({
+    status: 'success',
+  });
+};
 exports.protect = catchAsync(async (req, res, next) => {
   // 1)getting token and check if it's there
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
   if (!token) {
-    return next(new AppError('You are not logged in.please log in to get accsess!'));
+    return next(new AppError('You are not logged in. Please log in to get accsess!', 401));
   }
   // 2) verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   //3) check if user still exist
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
-    return next(new AppError('The user belonging to this token does no longer exist!'));
+    return next(new AppError('The user belonging to this token does no longer exist!', 401));
   }
   // 4)check if user change password after the token was issued
   if (currentUser.changedPasswordAfter(decoded.iat)) {
-    return next(new AppError('password recently changed.please login again', 401));
+    return next(new AppError('Password recently changed.Please login again', 401));
   }
   req.user = currentUser;
+  res.locals.user = currentUser;
   next();
 });
+//Only for rendered pages, and no errors
+exports.isLoggedIn = async (req, res, next) => {
+  // 1)getting token and check if it's there
+  if (req.cookies.jwt) {
+    try {
+      // 2) verification token
+      const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET);
+      //3) check if user still exist
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) {
+        return next();
+      }
+      // 4)check if user change password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next();
+      }
+      //There is a loggedin user
+      res.locals.user = currentUser; // every render page can access user variavle
+      return next();
+    } catch (err) {
+      return next();
+    }
+  }
 
+  next();
+};
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
     //roles['adfmin','lead-guide]-Rest operator| role='user'
@@ -95,16 +136,16 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = user.createPasswordresetToken();
   await user.save({ validateBeforeSave: false });
   // 3) send it to user's email
-  const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-  const message = `Forgot your password? Submit a patch request with you new password and passwordConfirm to:${resetURL}.\nIf you didn't forget your password then ignore this email`;
+  // const message = `Forgot your password? Submit a patch request with you new password and passwordConfirm to:${resetURL}.\nIf you didn't forget your password then ignore this email`;
 
   try {
-    await sendEmail({
-      email: user.email,
-      subject: 'Your reset password token (valid only 10 min)',
-      message,
-    });
-
+    // await sendEmail({
+    //   email: user.email,
+    //   subject: 'Your reset password token (valid only 10 min)',
+    //   message,
+    // });
+    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+    await new Email(user, resetURL).sendPasswordReset();
     res.status(200).json({
       status: 'success',
       message: 'Token sent to email',

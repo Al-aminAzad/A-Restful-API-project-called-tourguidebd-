@@ -35,6 +35,7 @@ const server = app.listen(port, () => {
 });
 
 process.on('unhandledRejection', (err) => {
+  console.log('3333333333333333333333333333333');
   console.log(err);
   console.log(err.name, err.message);
   console.log('UNHANDLE REJECTION');
