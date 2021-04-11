@@ -19,6 +19,7 @@ const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const viewRouter = require('./routes/viewRoutes');
 
+app.enable('trust proxy');
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 //1) GLOBAL MIDDLEWARE START
@@ -60,7 +61,7 @@ app.use(
 );
 
 //test middleware
-app.use(compression())
+app.use(compression());
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   // console.log(req.cookies);
