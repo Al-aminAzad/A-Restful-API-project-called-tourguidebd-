@@ -9,6 +9,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const cors = require('cors');
 
 //custom modules
 const tourRouter = require('./routes/tourRoutes');
@@ -23,7 +24,15 @@ app.enable('trust proxy');
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 //1) GLOBAL MIDDLEWARE START
-
+//implement CORS
+app.use(cors());
+//access-control-allow-origin*
+//api.tourguide.com front-end tourguide.com
+// //app.use(cors({
+//   origin:'https://www.tourguide.com'
+// }))
+app.options('*', cors());
+// app.options('/api/v1/tours/:id', cors());
 //Serving static files
 // app.use(express.static(`${__dirname}/public`));
 app.use(express.static(path.join(__dirname, 'public')));
